@@ -1,0 +1,23 @@
+{
+  "name": "firebase-product-manager",
+  "version": "1.0.0",
+  "description": "Aplikasi manajemen produk dengan Firebase BaaS - Authentication, Realtime Database, dan Email Verification",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -l $PORT",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "firebase",
+    "baas",
+    "authentication",
+    "realtime-database",
+    "crud",
+    "product-manager"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
