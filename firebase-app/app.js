@@ -1,7 +1,5 @@
 // ============================================
 // FIREBASE CONFIGURATION
-// ============================================
-// Ganti dengan konfigurasi Firebase Anda sendiri
 const firebaseConfig = {
       apiKey: "AIzaSyAbU-x2hS4Wc8AvpDG9yhy2RR8gfSJc5o0",
       authDomain: "product-manager-bdc83.firebaseapp.com",
