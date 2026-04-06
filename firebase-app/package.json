@@ -4,8 +4,9 @@
   "description": "Aplikasi manajemen produk dengan Firebase BaaS - Authentication, Realtime Database, dan Email Verification",
   "main": "index.html",
   "scripts": {
-    "start": "npx serve . -l $PORT",
-    "dev": "npx serve ."
+  "dev": "vite",
+  "build": "vite build",
+  "start": "vite preview"
   },
   "keywords": [
     "firebase",
