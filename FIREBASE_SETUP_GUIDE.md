@@ -85,33 +85,62 @@ const firebaseConfig = {
 
 4. Klik **"Publish"**
 
-### Langkah 7: Deploy ke Render
+### Langkah 7: Deploy ke Netlify
 
-#### Opsi A: Deploy sebagai Static Site
+Netlify adalah platform hosting gratis yang sangat mudah digunakan untuk static sites.
+
+#### Opsi A: Drag & Drop (Termudah & Cepat)
+
+1. Extract file `firebase-product-manager.zip`
+2. Buka [Netlify](https://www.netlify.com/) di browser
+3. Login dengan akun GitHub, GitLab, atau Email
+4. Di dashboard Netlify, drag & drop folder `firebase-product-manager` ke area yang disediakan
+5. Tunggu beberapa detik, website akan otomatis deploy!
+6. Copy URL yang diberikan (contoh: `https://abc123.netlify.app`)
+
+#### Opsi B: Connect Git Repository
 
 1. Push code ke GitHub/GitLab
-2. Buka [Render](https://render.com/)
-3. Login dengan akun GitHub/GitLab
-4. Klik **"New +"** > **"Static Site"**
-5. Connect repository `firebase-product-manager`
-6. Setting:
-   - **Name**: `firebase-product-manager`
-   - **Branch**: `main`
-   - **Build Command**: *(kosongkan)*
-   - **Publish Directory**: `.`
-7. Klik **"Create Static Site"**
+2. Buka [Netlify Dashboard](https://app.netlify.com/)
+3. Klik **"Add new site"** > **"Import an existing project"**
+4. Pilih Git provider (GitHub/GitLab/Bitbucket)
+5. Authorize Netlify untuk mengakses repository
+6. Pilih repository `firebase-product-manager`
+7. Setting deploy:
+   - **Branch to deploy**: `main` atau `master`
+   - **Build command**: *(kosongkan - karena ini static site)*
+   - **Publish directory**: `.` (root folder)
+8. Klik **"Deploy site"**
+9. Tunggu proses deploy selesai
 
-#### Opsi B: Deploy sebagai Web Service
+#### Opsi C: Netlify CLI (Untuk Developer)
 
-1. Pastikan file `package.json` sudah ada
-2. Push ke GitHub
-3. Di Render, klik **"New +"** > **"Web Service"**
-4. Connect repository
-5. Setting:
-   - **Name**: `firebase-product-manager`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-6. Klik **"Create Web Service"**
+1. Install Netlify CLI global:
+```bash
+npm install netlify-cli -g
+```
+
+2. Login ke Netlify:
+```bash
+netlify login
+```
+
+3. Inisialisasi project (pertama kali):
+```bash
+netlify init
+```
+
+4. Deploy ke production:
+```bash
+netlify deploy --prod --dir=.
+```
+
+5. Atau deploy draft terlebih dahulu:
+```bash
+netlify deploy --dir=.
+# Lalu deploy ke production:
+netlify deploy --prod --dir=.
+```
 
 ---
 
@@ -235,8 +264,9 @@ products/
 ```
 firebase-product-manager.zip
 ├── index.html          # Halaman utama
-├── style.css           # Styling
-├── app.js              # Logika Firebase
+├── style.css           # Styling CSS
+├── app.js              # Logika Firebase (Auth + CRUD)
+├── netlify.toml        # Konfigurasi Netlify
 ├── package.json        # Config untuk deploy
 └── README.md           # Dokumentasi
 ```
@@ -246,7 +276,8 @@ firebase-product-manager.zip
 ## 🔗 Link Penting
 
 - **Firebase Console**: https://console.firebase.google.com/
-- **Render**: https://render.com/
+- **Netlify**: https://www.netlify.com/
+- **Netlify Dashboard**: https://app.netlify.com/
 - **Dokumentasi Firebase**: https://firebase.google.com/docs/
 
 ---
