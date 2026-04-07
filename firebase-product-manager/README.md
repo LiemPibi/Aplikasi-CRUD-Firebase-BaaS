@@ -18,12 +18,11 @@ Data produk yang disimpan (5 field):
 4. **Stok** (number)
 5. **Deskripsi** (string)
 
-### 3. CRUD Operations (12 fungsi)
-- **Produk**: 1 Create, 1 Read, 1 Update, 1 Delete
-- **Kategori**: 1 Create, 1 Read, 1 Update, 1 Delete
-- **Supplier**: 1 Create, 1 Read, 1 Update, 1 Delete
-
-Total: **12 fungsi CRUD** terhubung ke Firebase Realtime Database.
+### 3. CRUD Operations
+- **Create**: Tambah produk baru
+- **Read**: Tampilkan daftar produk dalam tabel
+- **Update**: Edit data produk yang sudah ada
+- **Delete**: Hapus produk dari database
 
 ### 4. UI/UX
 - Desain modern dengan CSS murni

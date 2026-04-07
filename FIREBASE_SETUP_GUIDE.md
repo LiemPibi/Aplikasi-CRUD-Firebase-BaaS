@@ -64,24 +64,6 @@ const firebaseConfig = {
 3. Ganti `firebaseConfig` (baris 6-14) dengan konfigurasi Anda
 4. Simpan file
 
-
-### Langkah 5B: Tambahkan Firebase Admin SDK (Opsional - Backend Server)
-
-Jika Anda punya backend Node.js, tambahkan inisialisasi berikut:
-
-```javascript
-var admin = require("firebase-admin");
-
-var serviceAccount = require("path/to/serviceAccountKey.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://product-manager-bdc83-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
-```
-
-> Gunakan **hanya di server/backend**, jangan di frontend browser.
-
 ### Langkah 6: Setup Security Rules (Penting!)
 
 1. Di Firebase Console, klik **"Realtime Database"**
