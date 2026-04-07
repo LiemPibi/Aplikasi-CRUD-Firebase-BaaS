@@ -1,461 +1,428 @@
 // ============================================
 // FIREBASE CONFIGURATION
 // ============================================
-// Ganti dengan konfigurasi Firebase Anda sendiri
 const firebaseConfig = {
-    apiKey: "AIzaSyYourApiKeyHere",
-    authDomain: "your-project.firebaseapp.com",
-    databaseURL: "https://your-project-default-rtdb.firebaseio.com",
-    projectId: "your-project",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef123456"
+  apiKey: "AIzaSyYourApiKeyHere",
+  authDomain: "your-project.firebaseapp.com",
+  databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+  projectId: "your-project",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123456"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
-// Get references
 const auth = firebase.auth();
 const database = firebase.database();
 
 // ============================================
-// AUTHENTICATION FUNCTIONS
+// AUTHENTICATION
 // ============================================
-
-// Switch between login and register tabs
 function switchTab(tab) {
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const tabs = document.querySelectorAll('.tab-btn');
-    
-    tabs.forEach(t => t.classList.remove('active'));
-    
-    if (tab === 'login') {
-        loginForm.style.display = 'block';
-        registerForm.style.display = 'none';
-        tabs[0].classList.add('active');
-    } else {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-        tabs[1].classList.add('active');
-    }
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const tabs = document.querySelectorAll(".tab-btn");
+  tabs.forEach((t) => t.classList.remove("active"));
+
+  if (tab === "login") {
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
+    tabs[0].classList.add("active");
+  } else {
+    loginForm.style.display = "none";
+    registerForm.style.display = "block";
+    tabs[1].classList.add("active");
+  }
 }
 
-// Register function with email verification
 function register() {
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const messageEl = document.getElementById('registerMessage');
-    
-    // Validation
-    if (!email || !password || !confirmPassword) {
-        showMessage(messageEl, 'Semua field harus diisi!', 'error');
-        return;
-    }
-    
-    if (password.length < 6) {
-        showMessage(messageEl, 'Password minimal 6 karakter!', 'error');
-        return;
-    }
-    
-    if (password !== confirmPassword) {
-        showMessage(messageEl, 'Password tidak cocok!', 'error');
-        return;
-    }
-    
-    // Create user
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            
-            // Send email verification
-            user.sendEmailVerification()
-                .then(() => {
-                    showMessage(messageEl, 'Registrasi berhasil! Link verifikasi telah dikirim ke email Anda.', 'success');
-                    
-                    // Clear form
-                    document.getElementById('registerEmail').value = '';
-                    document.getElementById('registerPassword').value = '';
-                    document.getElementById('confirmPassword').value = '';
-                    
-                    showToast('Registrasi berhasil! Silakan verifikasi email Anda.', 'success');
-                })
-                .catch((error) => {
-                    showMessage(messageEl, 'Registrasi berhasil, tetapi gagal mengirim verifikasi email: ' + error.message, 'error');
-                });
-        })
-        .catch((error) => {
-            let errorMessage = 'Registrasi gagal: ';
-            switch (error.code) {
-                case 'auth/email-already-in-use':
-                    errorMessage += 'Email sudah terdaftar!';
-                    break;
-                case 'auth/invalid-email':
-                    errorMessage += 'Format email tidak valid!';
-                    break;
-                case 'auth/weak-password':
-                    errorMessage += 'Password terlalu lemah!';
-                    break;
-                default:
-                    errorMessage += error.message;
-            }
-            showMessage(messageEl, errorMessage, 'error');
-        });
+  const email = document.getElementById("registerEmail").value.trim();
+  const password = document.getElementById("registerPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const messageEl = document.getElementById("registerMessage");
+
+  if (!email || !password || !confirmPassword) {
+    showMessage(messageEl, "Semua field harus diisi!", "error");
+    return;
+  }
+  if (password.length < 6) {
+    showMessage(messageEl, "Password minimal 6 karakter!", "error");
+    return;
+  }
+  if (password !== confirmPassword) {
+    showMessage(messageEl, "Password tidak cocok!", "error");
+    return;
+  }
+
+  auth
+    .createUserWithEmailAndPassword(email, password)
+    .then(({ user }) => user.sendEmailVerification())
+    .then(() => {
+      showMessage(document.getElementById("registerMessage"), "Registrasi berhasil! Cek email verifikasi.", "success");
+      showToast("Registrasi sukses. Silakan verifikasi email.", "success");
+      document.getElementById("registerEmail").value = "";
+      document.getElementById("registerPassword").value = "";
+      document.getElementById("confirmPassword").value = "";
+    })
+    .catch((error) => {
+      showMessage(messageEl, "Registrasi gagal: " + error.message, "error");
+    });
 }
 
-// Login function
 function login() {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    const messageEl = document.getElementById('loginMessage');
-    
-    if (!email || !password) {
-        showMessage(messageEl, 'Email dan password harus diisi!', 'error');
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const messageEl = document.getElementById("loginMessage");
+
+  if (!email || !password) {
+    showMessage(messageEl, "Email dan password wajib diisi!", "error");
+    return;
+  }
+
+  auth
+    .signInWithEmailAndPassword(email, password)
+    .then(({ user }) => {
+      if (!user.emailVerified) {
+        showMessage(messageEl, "Email belum terverifikasi.", "error");
+        showToast("Verifikasi email dulu sebelum masuk.", "error");
         return;
-    }
-    
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            
-            // Check if email is verified
-            if (!user.emailVerified) {
-                showMessage(messageEl, 'Email belum terverifikasi. Silakan cek inbox email Anda.', 'error');
-                showToast('Email belum terverifikasi!', 'error');
-                return;
-            }
-            
-            showMessage(messageEl, 'Login berhasil!', 'success');
-            showToast('Selamat datang, ' + user.email + '!', 'success');
-        })
-        .catch((error) => {
-            let errorMessage = 'Login gagal: ';
-            switch (error.code) {
-                case 'auth/user-not-found':
-                    errorMessage += 'Email tidak terdaftar!';
-                    break;
-                case 'auth/wrong-password':
-                    errorMessage += 'Password salah!';
-                    break;
-                case 'auth/invalid-email':
-                    errorMessage += 'Format email tidak valid!';
-                    break;
-                case 'auth/invalid-credential':
-                    errorMessage += 'Email atau password salah!';
-                    break;
-                default:
-                    errorMessage += error.message;
-            }
-            showMessage(messageEl, errorMessage, 'error');
-        });
+      }
+      showMessage(messageEl, "Login berhasil.", "success");
+      showToast("Selamat datang, " + user.email, "success");
+    })
+    .catch((error) => showMessage(messageEl, "Login gagal: " + error.message, "error"));
 }
 
-// Logout function
 function logout() {
-    auth.signOut()
-        .then(() => {
-            showToast('Logout berhasil!', 'success');
-        })
-        .catch((error) => {
-            showToast('Logout gagal: ' + error.message, 'error');
-        });
+  auth.signOut().then(() => showToast("Logout berhasil.", "success"));
 }
 
-// Resend verification email
 function resendVerification() {
-    const user = auth.currentUser;
-    if (user && !user.emailVerified) {
-        user.sendEmailVerification()
-            .then(() => {
-                showToast('Link verifikasi telah dikirim ulang!', 'success');
-            })
-            .catch((error) => {
-                showToast('Gagal mengirim ulang: ' + error.message, 'error');
-            });
-    }
+  const user = auth.currentUser;
+  if (user && !user.emailVerified) {
+    user
+      .sendEmailVerification()
+      .then(() => showToast("Email verifikasi dikirim ulang.", "success"))
+      .catch((e) => showToast("Gagal kirim ulang: " + e.message, "error"));
+  }
 }
-
-// ============================================
-// AUTH STATE LISTENER
-// ============================================
 
 auth.onAuthStateChanged((user) => {
-    const authSection = document.getElementById('authSection');
-    const appSection = document.getElementById('appSection');
-    const navUser = document.getElementById('navUser');
-    const userEmail = document.getElementById('userEmail');
-    const verificationAlert = document.getElementById('verificationAlert');
-    
-    if (user && user.emailVerified) {
-        // User is logged in and verified
-        authSection.style.display = 'none';
-        appSection.style.display = 'block';
-        navUser.style.display = 'flex';
-        userEmail.textContent = user.email;
-        verificationAlert.style.display = 'none';
-        
-        // Load products
-        loadProducts();
-    } else if (user && !user.emailVerified) {
-        // User is logged in but not verified
-        authSection.style.display = 'none';
-        appSection.style.display = 'block';
-        navUser.style.display = 'flex';
-        userEmail.textContent = user.email;
-        verificationAlert.style.display = 'flex';
-        
-        // Disable form inputs
-        disableFormInputs();
-    } else {
-        // User is logged out
-        authSection.style.display = 'block';
-        appSection.style.display = 'none';
-        navUser.style.display = 'none';
-        
-        // Clear forms
-        document.getElementById('loginEmail').value = '';
-        document.getElementById('loginPassword').value = '';
-    }
+  const authSection = document.getElementById("authSection");
+  const appSection = document.getElementById("appSection");
+  const navUser = document.getElementById("navUser");
+  const userEmail = document.getElementById("userEmail");
+  const verificationAlert = document.getElementById("verificationAlert");
+
+  if (user && user.emailVerified) {
+    authSection.style.display = "none";
+    appSection.style.display = "block";
+    navUser.style.display = "flex";
+    userEmail.textContent = user.email;
+    verificationAlert.style.display = "none";
+    loadAllData();
+  } else if (user && !user.emailVerified) {
+    authSection.style.display = "none";
+    appSection.style.display = "block";
+    navUser.style.display = "flex";
+    userEmail.textContent = user.email;
+    verificationAlert.style.display = "flex";
+  } else {
+    authSection.style.display = "block";
+    appSection.style.display = "none";
+    navUser.style.display = "none";
+  }
 });
 
-function disableFormInputs() {
-    const inputs = document.querySelectorAll('#productForm input, #productForm select, #productForm textarea, #productForm button');
-    inputs.forEach(input => {
-        input.disabled = true;
+function currentUserGuard() {
+  const user = auth.currentUser;
+  if (!user || !user.emailVerified) {
+    showToast("Anda harus login dan verifikasi email!", "error");
+    return null;
+  }
+  return user;
+}
+
+function loadAllData() {
+  readProducts();
+  readCategories();
+  readSuppliers();
+}
+
+// ============================================
+// 12 CRUD FUNCTIONS REQUIRED
+// 3x CREATE, 3x READ, 3x UPDATE, 3x DELETE
+// ============================================
+
+// ---------- PRODUCTS ----------
+function createProduct(data) {
+  const user = currentUserGuard();
+  if (!user) return;
+  database.ref("products").push({ ...data, userId: user.uid, createdAt: firebase.database.ServerValue.TIMESTAMP, updatedAt: firebase.database.ServerValue.TIMESTAMP })
+    .then(() => {
+      showToast("Produk ditambahkan.", "success");
+      resetProductForm();
+    })
+    .catch((e) => showToast("Create produk gagal: " + e.message, "error"));
+}
+
+function readProducts() {
+  const user = currentUserGuard();
+  if (!user) return;
+  const tbody = document.getElementById("productTableBody");
+  database.ref("products").orderByChild("userId").equalTo(user.uid).on("value", (snapshot) => {
+    tbody.innerHTML = "";
+    let idx = 1;
+    snapshot.forEach((item) => {
+      const p = item.val();
+      tbody.innerHTML += `<tr><td>${idx++}</td><td>${escapeHtml(p.name)}</td><td>Rp ${formatNumber(p.price)}</td><td>${p.stock}</td><td><button class="btn-edit" onclick="editProduct('${item.key}')">Edit</button><button class="btn-delete" onclick="deleteProduct('${item.key}')">Hapus</button></td></tr>`;
     });
+  });
 }
 
-function enableFormInputs() {
-    const inputs = document.querySelectorAll('#productForm input, #productForm select, #productForm textarea, #productForm button');
-    inputs.forEach(input => {
-        input.disabled = false;
+function updateProduct(id, data) {
+  const user = currentUserGuard();
+  if (!user) return;
+  database.ref("products/" + id).once("value").then((snap) => {
+    const old = snap.val();
+    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
+    return database.ref("products/" + id).update({ ...data, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+  }).then(() => {
+    showToast("Produk diupdate.", "success");
+    resetProductForm();
+  }).catch((e) => showToast("Update produk gagal: " + e.message, "error"));
+}
+
+function deleteProduct(id) {
+  const user = currentUserGuard();
+  if (!user) return;
+  if (!confirm("Hapus produk ini?")) return;
+  database.ref("products/" + id).once("value").then((snap) => {
+    const old = snap.val();
+    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
+    return database.ref("products/" + id).remove();
+  }).then(() => showToast("Produk dihapus.", "success"))
+    .catch((e) => showToast("Delete produk gagal: " + e.message, "error"));
+}
+
+// ---------- CATEGORIES ----------
+function createCategory(data) {
+  const user = currentUserGuard();
+  if (!user) return;
+  database.ref("categories").push({ ...data, userId: user.uid, createdAt: firebase.database.ServerValue.TIMESTAMP, updatedAt: firebase.database.ServerValue.TIMESTAMP })
+    .then(() => {
+      showToast("Kategori ditambahkan.", "success");
+      resetCategoryForm();
+    })
+    .catch((e) => showToast("Create kategori gagal: " + e.message, "error"));
+}
+
+function readCategories() {
+  const user = currentUserGuard();
+  if (!user) return;
+  const tbody = document.getElementById("categoryTableBody");
+  database.ref("categories").orderByChild("userId").equalTo(user.uid).on("value", (snapshot) => {
+    tbody.innerHTML = "";
+    let idx = 1;
+    snapshot.forEach((item) => {
+      const c = item.val();
+      tbody.innerHTML += `<tr><td>${idx++}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.type)}</td><td><button class="btn-edit" onclick="editCategory('${item.key}')">Edit</button><button class="btn-delete" onclick="deleteCategory('${item.key}')">Hapus</button></td></tr>`;
     });
+  });
 }
 
-// ============================================
-// CRUD FUNCTIONS FOR PRODUCTS
-// ============================================
-
-// Save product (Create/Update)
-function saveProduct(event) {
-    event.preventDefault();
-    
-    const user = auth.currentUser;
-    if (!user || !user.emailVerified) {
-        showToast('Anda harus login dan verifikasi email untuk menyimpan data!', 'error');
-        return;
-    }
-    
-    const productId = document.getElementById('productId').value;
-    const productData = {
-        name: document.getElementById('productName').value.trim(),
-        category: document.getElementById('productCategory').value,
-        price: parseInt(document.getElementById('productPrice').value),
-        stock: parseInt(document.getElementById('productStock').value),
-        description: document.getElementById('productDescription').value.trim(),
-        userId: user.uid,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP
-    };
-    
-    if (productId) {
-        // Update existing product
-        database.ref('products/' + productId).update(productData)
-            .then(() => {
-                showToast('Produk berhasil diperbarui!', 'success');
-                resetForm();
-                loadProducts();
-            })
-            .catch((error) => {
-                showToast('Gagal memperbarui produk: ' + error.message, 'error');
-            });
-    } else {
-        // Create new product
-        productData.createdAt = firebase.database.ServerValue.TIMESTAMP;
-        
-        database.ref('products').push(productData)
-            .then(() => {
-                showToast('Produk berhasil ditambahkan!', 'success');
-                resetForm();
-                loadProducts();
-            })
-            .catch((error) => {
-                showToast('Gagal menambahkan produk: ' + error.message, 'error');
-            });
-    }
+function updateCategory(id, data) {
+  const user = currentUserGuard();
+  if (!user) return;
+  database.ref("categories/" + id).once("value").then((snap) => {
+    const old = snap.val();
+    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
+    return database.ref("categories/" + id).update({ ...data, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+  }).then(() => {
+    showToast("Kategori diupdate.", "success");
+    resetCategoryForm();
+  }).catch((e) => showToast("Update kategori gagal: " + e.message, "error"));
 }
 
-// Load all products (Read)
-function loadProducts() {
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    const tableBody = document.getElementById('productTableBody');
-    const emptyMessage = document.getElementById('emptyMessage');
-    
-    database.ref('products').orderByChild('userId').equalTo(user.uid).on('value', (snapshot) => {
-        tableBody.innerHTML = '';
-        
-        if (!snapshot.exists()) {
-            emptyMessage.style.display = 'block';
-            return;
-        }
-        
-        emptyMessage.style.display = 'none';
-        
-        let index = 1;
-        snapshot.forEach((childSnapshot) => {
-            const product = childSnapshot.val();
-            const productId = childSnapshot.key;
-            
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index}</td>
-                <td>${escapeHtml(product.name)}</td>
-                <td><span class="badge badge-${getCategoryClass(product.category)}">${product.category}</span></td>
-                <td>Rp ${formatNumber(product.price)}</td>
-                <td>${product.stock}</td>
-                <td>${escapeHtml(product.description)}</td>
-                <td>
-                    <button class="btn-edit" onclick="editProduct('${productId}')">Edit</button>
-                    <button class="btn-delete" onclick="deleteProduct('${productId}')">Hapus</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
-            index++;
-        });
-    }, (error) => {
-        showToast('Gagal memuat data: ' + error.message, 'error');
+function deleteCategory(id) {
+  const user = currentUserGuard();
+  if (!user) return;
+  if (!confirm("Hapus kategori ini?")) return;
+  database.ref("categories/" + id).once("value").then((snap) => {
+    const old = snap.val();
+    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
+    return database.ref("categories/" + id).remove();
+  }).then(() => showToast("Kategori dihapus.", "success"))
+    .catch((e) => showToast("Delete kategori gagal: " + e.message, "error"));
+}
+
+// ---------- SUPPLIERS ----------
+function createSupplier(data) {
+  const user = currentUserGuard();
+  if (!user) return;
+  database.ref("suppliers").push({ ...data, userId: user.uid, createdAt: firebase.database.ServerValue.TIMESTAMP, updatedAt: firebase.database.ServerValue.TIMESTAMP })
+    .then(() => {
+      showToast("Supplier ditambahkan.", "success");
+      resetSupplierForm();
+    })
+    .catch((e) => showToast("Create supplier gagal: " + e.message, "error"));
+}
+
+function readSuppliers() {
+  const user = currentUserGuard();
+  if (!user) return;
+  const tbody = document.getElementById("supplierTableBody");
+  database.ref("suppliers").orderByChild("userId").equalTo(user.uid).on("value", (snapshot) => {
+    tbody.innerHTML = "";
+    let idx = 1;
+    snapshot.forEach((item) => {
+      const s = item.val();
+      tbody.innerHTML += `<tr><td>${idx++}</td><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.phone)}</td><td>${escapeHtml(s.city)}</td><td><button class="btn-edit" onclick="editSupplier('${item.key}')">Edit</button><button class="btn-delete" onclick="deleteSupplier('${item.key}')">Hapus</button></td></tr>`;
     });
+  });
 }
 
-// Edit product - Load data to form (Update preparation)
-function editProduct(productId) {
-    const user = auth.currentUser;
-    if (!user || !user.emailVerified) {
-        showToast('Anda harus login dan verifikasi email!', 'error');
-        return;
-    }
-    
-    database.ref('products/' + productId).once('value')
-        .then((snapshot) => {
-            const product = snapshot.val();
-            
-            if (product && product.userId === user.uid) {
-                document.getElementById('productId').value = productId;
-                document.getElementById('productName').value = product.name;
-                document.getElementById('productCategory').value = product.category;
-                document.getElementById('productPrice').value = product.price;
-                document.getElementById('productStock').value = product.stock;
-                document.getElementById('productDescription').value = product.description;
-                
-                document.getElementById('formTitle').textContent = 'Edit Produk';
-                document.getElementById('saveBtn').textContent = 'Update';
-                
-                // Scroll to form
-                document.getElementById('productForm').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                showToast('Produk tidak ditemukan atau Anda tidak memiliki akses!', 'error');
-            }
-        })
-        .catch((error) => {
-            showToast('Gagal memuat data produk: ' + error.message, 'error');
-        });
+function updateSupplier(id, data) {
+  const user = currentUserGuard();
+  if (!user) return;
+  database.ref("suppliers/" + id).once("value").then((snap) => {
+    const old = snap.val();
+    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
+    return database.ref("suppliers/" + id).update({ ...data, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+  }).then(() => {
+    showToast("Supplier diupdate.", "success");
+    resetSupplierForm();
+  }).catch((e) => showToast("Update supplier gagal: " + e.message, "error"));
 }
 
-// Delete product
-function deleteProduct(productId) {
-    const user = auth.currentUser;
-    if (!user || !user.emailVerified) {
-        showToast('Anda harus login dan verifikasi email!', 'error');
-        return;
-    }
-    
-    if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
-        database.ref('products/' + productId).remove()
-            .then(() => {
-                showToast('Produk berhasil dihapus!', 'success');
-                resetForm();
-            })
-            .catch((error) => {
-                showToast('Gagal menghapus produk: ' + error.message, 'error');
-            });
-    }
-}
-
-// Reset form
-function resetForm() {
-    document.getElementById('productForm').reset();
-    document.getElementById('productId').value = '';
-    document.getElementById('formTitle').textContent = 'Tambah Produk Baru';
-    document.getElementById('saveBtn').textContent = 'Simpan';
+function deleteSupplier(id) {
+  const user = currentUserGuard();
+  if (!user) return;
+  if (!confirm("Hapus supplier ini?")) return;
+  database.ref("suppliers/" + id).once("value").then((snap) => {
+    const old = snap.val();
+    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
+    return database.ref("suppliers/" + id).remove();
+  }).then(() => showToast("Supplier dihapus.", "success"))
+    .catch((e) => showToast("Delete supplier gagal: " + e.message, "error"));
 }
 
 // ============================================
-// UTILITY FUNCTIONS
+// FORM HANDLERS + EDIT HELPERS
 // ============================================
+function handleProductSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById("productId").value;
+  const payload = {
+    name: document.getElementById("productName").value.trim(),
+    price: Number(document.getElementById("productPrice").value),
+    stock: Number(document.getElementById("productStock").value)
+  };
+  id ? updateProduct(id, payload) : createProduct(payload);
+}
 
-// Show message in element
+function handleCategorySubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById("categoryId").value;
+  const payload = {
+    name: document.getElementById("categoryName").value.trim(),
+    type: document.getElementById("categoryType").value
+  };
+  id ? updateCategory(id, payload) : createCategory(payload);
+}
+
+function handleSupplierSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById("supplierId").value;
+  const payload = {
+    name: document.getElementById("supplierName").value.trim(),
+    phone: document.getElementById("supplierPhone").value.trim(),
+    city: document.getElementById("supplierCity").value.trim()
+  };
+  id ? updateSupplier(id, payload) : createSupplier(payload);
+}
+
+function editProduct(id) {
+  database.ref("products/" + id).once("value").then((snap) => {
+    const p = snap.val();
+    document.getElementById("productId").value = id;
+    document.getElementById("productName").value = p.name;
+    document.getElementById("productPrice").value = p.price;
+    document.getElementById("productStock").value = p.stock;
+    document.getElementById("productFormTitle").textContent = "Update Produk";
+    document.getElementById("productSaveBtn").textContent = "Update Produk";
+  });
+}
+
+function editCategory(id) {
+  database.ref("categories/" + id).once("value").then((snap) => {
+    const c = snap.val();
+    document.getElementById("categoryId").value = id;
+    document.getElementById("categoryName").value = c.name;
+    document.getElementById("categoryType").value = c.type;
+    document.getElementById("categoryFormTitle").textContent = "Update Kategori";
+    document.getElementById("categorySaveBtn").textContent = "Update Kategori";
+  });
+}
+
+function editSupplier(id) {
+  database.ref("suppliers/" + id).once("value").then((snap) => {
+    const s = snap.val();
+    document.getElementById("supplierId").value = id;
+    document.getElementById("supplierName").value = s.name;
+    document.getElementById("supplierPhone").value = s.phone;
+    document.getElementById("supplierCity").value = s.city;
+    document.getElementById("supplierFormTitle").textContent = "Update Supplier";
+    document.getElementById("supplierSaveBtn").textContent = "Update Supplier";
+  });
+}
+
+function resetProductForm() {
+  document.getElementById("productForm").reset();
+  document.getElementById("productId").value = "";
+  document.getElementById("productFormTitle").textContent = "Create/Update Produk";
+  document.getElementById("productSaveBtn").textContent = "Simpan Produk";
+}
+
+function resetCategoryForm() {
+  document.getElementById("categoryForm").reset();
+  document.getElementById("categoryId").value = "";
+  document.getElementById("categoryFormTitle").textContent = "Create/Update Kategori";
+  document.getElementById("categorySaveBtn").textContent = "Simpan Kategori";
+}
+
+function resetSupplierForm() {
+  document.getElementById("supplierForm").reset();
+  document.getElementById("supplierId").value = "";
+  document.getElementById("supplierFormTitle").textContent = "Create/Update Supplier";
+  document.getElementById("supplierSaveBtn").textContent = "Simpan Supplier";
+}
+
+// ============================================
+// UTILITIES
+// ============================================
 function showMessage(element, message, type) {
-    element.textContent = message;
-    element.className = 'message ' + type;
-    
-    setTimeout(() => {
-        element.textContent = '';
-        element.className = 'message';
-    }, 5000);
+  element.textContent = message;
+  element.className = "message " + type;
+  setTimeout(() => {
+    element.textContent = "";
+    element.className = "message";
+  }, 5000);
 }
 
-// Show toast notification
-function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.className = 'toast ' + type + ' show';
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.className = "toast " + type + " show";
+  setTimeout(() => toast.classList.remove("show"), 3000);
 }
 
-// Format number with thousand separator
-function formatNumber(num) {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
-// Escape HTML to prevent XSS
 function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  const div = document.createElement("div");
+  div.textContent = text ?? "";
+  return div.innerHTML;
 }
 
-// Get category badge class
-function getCategoryClass(category) {
-    const classes = {
-        'Elektronik': 'primary',
-        'Pakaian': 'success',
-        'Makanan': 'warning',
-        'Minuman': 'info',
-        'Lainnya': 'secondary'
-    };
-    return classes[category] || 'secondary';
+function formatNumber(num) {
+  return Number(num || 0).toLocaleString("id-ID");
 }
-
-// Add CSS for badges dynamically
-const badgeStyle = document.createElement('style');
-badgeStyle.textContent = `
-    .badge {
-        padding: 0.3rem 0.7rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-    .badge-primary { background: #667eea; color: white; }
-    .badge-success { background: #28a745; color: white; }
-    .badge-warning { background: #ffc107; color: #333; }
-    .badge-info { background: #17a2b8; color: white; }
-    .badge-secondary { background: #6c757d; color: white; }
-`;
-document.head.appendChild(badgeStyle);

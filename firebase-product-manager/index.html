@@ -1,155 +1,170 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Product Manager</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Firebase Cloud CRUD Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <span class="brand-icon">📦</span>
-                <span>Firebase Product Manager</span>
-            </div>
-            <div class="nav-user" id="navUser" style="display: none;">
-                <span id="userEmail"></span>
-                <button onclick="logout()" class="btn-logout">Logout</button>
-            </div>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <span class="brand-icon">☁️</span>
+        <span>Firebase Cloud CRUD Dashboard</span>
+      </div>
+      <div class="nav-user" id="navUser" style="display: none;">
+        <span id="userEmail"></span>
+        <button onclick="logout()" class="btn-logout">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div id="authSection" class="auth-section">
+      <div class="auth-tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+        <button class="tab-btn" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <div id="loginForm" class="auth-form">
+        <h2>Login</h2>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="Masukkan email" required />
         </div>
-    </nav>
-
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Auth Section -->
-        <div id="authSection" class="auth-section">
-            <div class="auth-tabs">
-                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
-                <button class="tab-btn" onclick="switchTab('register')">Register</button>
-            </div>
-
-            <!-- Login Form -->
-            <div id="loginForm" class="auth-form">
-                <h2>Login</h2>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" placeholder="Masukkan email" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" placeholder="Masukkan password" required>
-                </div>
-                <button onclick="login()" class="btn-primary">Login</button>
-                <p id="loginMessage" class="message"></p>
-            </div>
-
-            <!-- Register Form -->
-            <div id="registerForm" class="auth-form" style="display: none;">
-                <h2>Register</h2>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="registerEmail" placeholder="Masukkan email" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="registerPassword" placeholder="Minimal 6 karakter" required>
-                </div>
-                <div class="form-group">
-                    <label>Konfirmasi Password</label>
-                    <input type="password" id="confirmPassword" placeholder="Konfirmasi password" required>
-                </div>
-                <button onclick="register()" class="btn-primary">Register</button>
-                <p id="registerMessage" class="message"></p>
-                <p class="info-text">* Link verifikasi akan dikirim ke email Anda</p>
-            </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Masukkan password" required />
         </div>
+        <button onclick="login()" class="btn-primary">Login</button>
+        <p id="loginMessage" class="message"></p>
+      </div>
 
-        <!-- Main App Section (Hidden until logged in) -->
-        <div id="appSection" style="display: none;">
-            <!-- Verification Alert -->
-            <div id="verificationAlert" class="alert alert-warning" style="display: none;">
-                <span>⚠️ Email belum terverifikasi. Silakan cek inbox email Anda untuk verifikasi.</span>
-                <button onclick="resendVerification()" class="btn-link">Kirim Ulang</button>
-            </div>
-
-            <!-- Product Form -->
-            <div class="card">
-                <h2 id="formTitle">Tambah Produk Baru</h2>
-                <form id="productForm" onsubmit="saveProduct(event)">
-                    <input type="hidden" id="productId">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Nama Produk</label>
-                            <input type="text" id="productName" placeholder="Nama produk" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Kategori</label>
-                            <select id="productCategory" required>
-                                <option value="">Pilih Kategori</option>
-                                <option value="Elektronik">Elektronik</option>
-                                <option value="Pakaian">Pakaian</option>
-                                <option value="Makanan">Makanan</option>
-                                <option value="Minuman">Minuman</option>
-                                <option value="Lainnya">Lainnya</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Harga (Rp)</label>
-                            <input type="number" id="productPrice" placeholder="Harga produk" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Stok</label>
-                            <input type="number" id="productStock" placeholder="Jumlah stok" min="0" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Deskripsi</label>
-                        <textarea id="productDescription" rows="3" placeholder="Deskripsi produk" required></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" id="saveBtn">Simpan</button>
-                        <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Product List -->
-            <div class="card">
-                <h2>Daftar Produk</h2>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Produk</th>
-                                <th>Kategori</th>
-                                <th>Harga</th>
-                                <th>Stok</th>
-                                <th>Deskripsi</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productTableBody">
-                            <!-- Data akan diisi oleh JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-                <p id="emptyMessage" class="empty-message" style="display: none;">Belum ada produk. Tambahkan produk pertama!</p>
-            </div>
+      <div id="registerForm" class="auth-form" style="display: none;">
+        <h2>Register</h2>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="registerEmail" placeholder="Masukkan email" required />
         </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="registerPassword" placeholder="Minimal 6 karakter" required />
+        </div>
+        <div class="form-group">
+          <label>Konfirmasi Password</label>
+          <input type="password" id="confirmPassword" placeholder="Konfirmasi password" required />
+        </div>
+        <button onclick="register()" class="btn-primary">Register</button>
+        <p id="registerMessage" class="message"></p>
+        <p class="info-text">* Link verifikasi akan dikirim ke email Anda</p>
+      </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <div id="appSection" style="display: none;">
+      <div id="verificationAlert" class="alert alert-warning" style="display: none;">
+        <span>⚠️ Email belum terverifikasi. Silakan cek inbox email Anda.</span>
+        <button onclick="resendVerification()" class="btn-link">Kirim Ulang</button>
+      </div>
 
-    <script src="app.js"></script>
+      <div class="card">
+        <h2>Status Requirement</h2>
+        <p>✅ Firebase Authentication (Register + Login)</p>
+        <p>✅ Email verification setelah register</p>
+        <p>✅ 12 fungsi CRUD terhubung Firebase Realtime Database (3 Create, 3 Read, 3 Update, 3 Delete)</p>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <h2 id="productFormTitle">Create/Update Produk</h2>
+          <form id="productForm" onsubmit="handleProductSubmit(event)">
+            <input type="hidden" id="productId" />
+            <div class="form-group"><label>Nama Produk</label><input type="text" id="productName" required /></div>
+            <div class="form-row">
+              <div class="form-group"><label>Harga</label><input type="number" id="productPrice" min="0" required /></div>
+              <div class="form-group"><label>Stok</label><input type="number" id="productStock" min="0" required /></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="productSaveBtn">Simpan Produk</button>
+              <button type="button" class="btn-secondary" onclick="resetProductForm()">Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2 id="categoryFormTitle">Create/Update Kategori</h2>
+          <form id="categoryForm" onsubmit="handleCategorySubmit(event)">
+            <input type="hidden" id="categoryId" />
+            <div class="form-group"><label>Nama Kategori</label><input type="text" id="categoryName" required /></div>
+            <div class="form-group">
+              <label>Tipe</label>
+              <select id="categoryType" required>
+                <option value="">Pilih Tipe</option>
+                <option value="Primer">Primer</option>
+                <option value="Sekunder">Sekunder</option>
+                <option value="Tersier">Tersier</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="categorySaveBtn">Simpan Kategori</button>
+              <button type="button" class="btn-secondary" onclick="resetCategoryForm()">Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2 id="supplierFormTitle">Create/Update Supplier</h2>
+          <form id="supplierForm" onsubmit="handleSupplierSubmit(event)">
+            <input type="hidden" id="supplierId" />
+            <div class="form-group"><label>Nama Supplier</label><input type="text" id="supplierName" required /></div>
+            <div class="form-row">
+              <div class="form-group"><label>Telepon</label><input type="text" id="supplierPhone" required /></div>
+              <div class="form-group"><label>Kota</label><input type="text" id="supplierCity" required /></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="supplierSaveBtn">Simpan Supplier</button>
+              <button type="button" class="btn-secondary" onclick="resetSupplierForm()">Reset</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Data Produk (Read)</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th>No</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
+            <tbody id="productTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Data Kategori (Read)</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th>No</th><th>Nama</th><th>Tipe</th><th>Aksi</th></tr></thead>
+            <tbody id="categoryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Data Supplier (Read)</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th>No</th><th>Nama</th><th>Telepon</th><th>Kota</th><th>Aksi</th></tr></thead>
+            <tbody id="supplierTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
 </body>
 </html>
