@@ -11,9 +11,39 @@ const firebaseConfig = {
   appId: "1:123456789:web:abcdef123456"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const database = firebase.database();
+function isFirebaseConfigValid(config) {
+  if (!config || typeof config !== "object") return false;
+  if (!config.apiKey || config.apiKey.includes("YourApiKeyHere")) return false;
+  if (!config.authDomain || config.authDomain.includes("your-project")) return false;
+  if (!config.databaseURL || config.databaseURL.includes("your-project")) return false;
+  return true;
+}
+
+function showFirebaseConfigError() {
+  document.body.innerHTML = `
+    <div style="max-width:720px;margin:40px auto;padding:24px;background:#fff;border-radius:12px;font-family:Arial,sans-serif;line-height:1.6;">
+      <h2 style="margin-top:0;color:#dc3545;">Firebase belum dikonfigurasi</h2>
+      <p>Error: <code>auth/api-key-not-valid</code>.</p>
+      <p>Silakan buka <strong>firebase-product-manager/app.js</strong> lalu ganti <code>firebaseConfig</code> dengan config asli dari Firebase Console.</p>
+      <ol>
+        <li>Firebase Console → Project settings → Your apps → Web app config</li>
+        <li>Copy <code>apiKey</code>, <code>authDomain</code>, dan <code>databaseURL</code></li>
+        <li>Tambahkan domain deploy Anda ke Authentication → Settings → Authorized domains</li>
+      </ol>
+    </div>
+  `;
+}
+
+let auth = null;
+let database = null;
+
+if (isFirebaseConfigValid(firebaseConfig)) {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  database = firebase.database();
+} else {
+  showFirebaseConfigError();
+}
 
 // ============================================
 // AUTHENTICATION
@@ -107,6 +137,7 @@ function resendVerification() {
   }
 }
 
+if (auth) {
 auth.onAuthStateChanged((user) => {
   const authSection = document.getElementById("authSection");
   const appSection = document.getElementById("appSection");
@@ -133,8 +164,13 @@ auth.onAuthStateChanged((user) => {
     navUser.style.display = "none";
   }
 });
+}
 
 function currentUserGuard() {
+  if (!auth || !database) {
+    showToast("Firebase belum terkonfigurasi. Isi firebaseConfig terlebih dahulu.", "error");
+    return null;
+  }
   const user = auth.currentUser;
   if (!user || !user.emailVerified) {
     showToast("Anda harus login dan verifikasi email!", "error");

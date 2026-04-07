@@ -190,11 +190,13 @@ Rules ini memastikan:
 - Pastikan email sudah terverifikasi
 - Cek password benar
 - Cek koneksi internet
+- Jika muncul `auth/api-key-not-valid`, berarti `firebaseConfig` di `app.js` masih placeholder atau salah project
 
 ### Data tidak muncul
 - Cek Firebase Console > Realtime Database
 - Pastikan user sudah login
 - Cek browser console untuk error
+- Pastikan `databaseURL` pada `firebaseConfig` sesuai dengan project Firebase yang aktif
 
 ## Teknologi
 
