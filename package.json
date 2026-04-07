@@ -1,6 +1,16 @@
-"scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "start": "serve -s dist"
+{
+  "name": "aplikasi-crud-firebase-baas",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm --prefix app run dev",
+    "build": "npm --prefix app run build",
+    "preview": "npm --prefix app run preview",
+    "dev:firebase-product-manager": "npm --prefix firebase-product-manager run dev",
+    "install:all": "npm install --workspaces"
+  },
+  "workspaces": [
+    "app",
+    "firebase-product-manager"
+  ]
 }

@@ -3,9 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "dev": "vite",
-  "build": "vite build",
-  "start": "vite preview"
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

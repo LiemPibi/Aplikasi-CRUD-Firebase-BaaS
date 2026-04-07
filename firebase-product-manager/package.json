@@ -4,9 +4,9 @@
   "description": "Aplikasi manajemen produk dengan Firebase BaaS - Authentication, Realtime Database, dan Email Verification",
   "main": "index.html",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "start": "vite preview"
+    "dev": "serve -l 5173 .",
+    "build": "echo \"Static app: no build step required\"",
+    "start": "serve -s ."
   },
   "keywords": [
     "firebase",
