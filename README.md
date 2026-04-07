@@ -94,6 +94,27 @@ Supaya login Firebase Auth tidak ditolak:
 
 Kalau langkah ini dilewatkan, login/register bisa error seperti `auth/unauthorized-domain`.
 
+
+## Setup Firebase Admin SDK (untuk server/backend)
+
+Tambahkan inisialisasi berikut di sisi backend (Node.js), **bukan** di frontend browser:
+
+```js
+var admin = require("firebase-admin");
+
+var serviceAccount = require("path/to/serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://product-manager-bdc83-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
+```
+
+Catatan penting:
+- Jangan commit `serviceAccountKey.json` ke GitHub.
+- Di repo ini sudah ada template: `firebase-admin-init.example.js`.
+- Untuk produksi, pakai environment variable / secret manager, bukan file key di repo.
+
 ## Checklist cepat troubleshooting
 - `npm run dev` gagal → cek ulang format JSON `package.json`.
 - Bisa buka UI tapi auth gagal → cek `firebaseConfig` dan **Authorized domains**.
