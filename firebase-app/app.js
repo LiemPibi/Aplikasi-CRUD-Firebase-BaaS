@@ -1,16 +1,15 @@
 // ============================================
 // FIREBASE CONFIGURATION
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyC9n2sXo5l8m1Zt3v6X9y7a8b0c1d2e3f",
-    authDomain: "crud-firebase-12345.firebaseapp.com",
-    databaseURL: "https://crud-firebase-12345-default-rtdb.firebaseio.com",
-    projectId: "crud-firebase-12345",
-    storageBucket: "crud-firebase-12345.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef123456",
-    measurementId: "G-ABCDEFGH1J"   
+  apiKey: "AIzaSyAbU-x2hS4Wc8AvpDG9yhy2RR8gfSJc5o0",
+  authDomain: "product-manager-bdc83.firebaseapp.com",
+  databaseURL: "https://product-manager-bdc83-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "product-manager-bdc83",
+  storageBucket: "product-manager-bdc83.firebasestorage.app",
+  messagingSenderId: "519624740177",
+  appId: "1:519624740177:web:ed90d4b073b8d7dd7b5770",
+  measurementId: "G-ETY4DNERT0"
 };
 
 // Initialize Firebase
