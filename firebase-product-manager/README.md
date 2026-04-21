@@ -18,11 +18,12 @@ Data produk yang disimpan (5 field):
 4. **Stok** (number)
 5. **Deskripsi** (string)
 
-### 3. CRUD Operations
-- **Create**: Tambah produk baru
-- **Read**: Tampilkan daftar produk dalam tabel
-- **Update**: Edit data produk yang sudah ada
-- **Delete**: Hapus produk dari database
+### 3. CRUD Operations (12 fungsi)
+- **Produk**: 1 Create, 1 Read, 1 Update, 1 Delete
+- **Kategori**: 1 Create, 1 Read, 1 Update, 1 Delete
+- **Supplier**: 1 Create, 1 Read, 1 Update, 1 Delete
+
+Total: **12 fungsi CRUD** terhubung ke Firebase Realtime Database.
 
 ### 4. UI/UX
 - Desain modern dengan CSS murni
@@ -30,6 +31,10 @@ Data produk yang disimpan (5 field):
 - Toast notification untuk feedback
 - Form validation
 - Loading states
+
+### 5. Bonus Layanan Cloud Tambahan
+- **Firebase Storage** untuk upload gambar produk (opsional)
+- URL file gambar disimpan bersama data produk di Realtime Database
 
 ## Setup Firebase
 
@@ -154,6 +159,20 @@ Rules ini memastikan:
 - Hanya user yang login bisa membaca data
 - User hanya bisa mengubah data miliknya sendiri
 
+### Firebase Storage Rules (Opsional Bonus)
+Jika memakai upload gambar produk, gunakan rules sederhana berikut:
+
+```txt
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /product-images/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
 ## Testing
 
 ### Test Case 1: Register
@@ -189,11 +208,13 @@ Rules ini memastikan:
 - Pastikan email sudah terverifikasi
 - Cek password benar
 - Cek koneksi internet
+- Jika muncul `auth/api-key-not-valid`, berarti `firebaseConfig` di `app.js` masih placeholder atau salah project
 
 ### Data tidak muncul
 - Cek Firebase Console > Realtime Database
 - Pastikan user sudah login
 - Cek browser console untuk error
+- Pastikan `databaseURL` pada `firebaseConfig` sesuai dengan project Firebase yang aktif
 
 ## Teknologi
 
@@ -202,6 +223,99 @@ Rules ini memastikan:
   - Firebase Authentication
   - Firebase Realtime Database
 - **Hosting**: Netlify (Static Site)
+
+## Ringkasan Aplikasi
+
+Aplikasi ini adalah dashboard manajemen data berbasis cloud dengan Firebase, yang berisi:
+
+1. **Autentikasi User**
+   - Register akun baru (email + password)
+   - Login user terdaftar
+   - Verifikasi email otomatis setelah register
+   - Logout user
+
+2. **Manajemen Data Realtime**
+   - Modul **Produk**
+   - Modul **Kategori**
+   - Modul **Supplier**
+   - Seluruh data tersimpan di **Firebase Realtime Database** dan terikat ke `userId` masing-masing user.
+
+3. **12 Fungsi CRUD Wajib**
+   - 3 fungsi **Create** (Produk, Kategori, Supplier)
+   - 3 fungsi **Read** (Produk, Kategori, Supplier)
+   - 3 fungsi **Update** (Produk, Kategori, Supplier)
+   - 3 fungsi **Delete** (Produk, Kategori, Supplier)
+
+## Cara Menggunakan Aplikasi (Ringkas)
+
+1. **Setup Firebase**
+   - Buat project di Firebase Console.
+   - Aktifkan Authentication (Email/Password).
+   - Aktifkan Realtime Database.
+   - Copy konfigurasi web app Firebase ke `firebaseConfig` di `app.js`.
+
+2. **Jalankan Aplikasi**
+   - Buka `index.html` via browser / Live Server.
+   - Atau deploy ke Netlify dari folder `firebase-product-manager`.
+
+3. **Alur Pemakaian User**
+   - Register akun baru.
+   - Cek inbox email dan lakukan verifikasi email.
+   - Login ke aplikasi.
+   - Tambah, lihat, ubah, dan hapus data Produk/Kategori/Supplier.
+
+4. **Jika Ada Error Login**
+   - Cek `firebaseConfig` (terutama `apiKey`, `authDomain`, `databaseURL`).
+   - Pastikan domain deploy sudah ada pada Firebase Authentication > Authorized Domains.
+
+## Kesimpulan Sederhana
+
+Aplikasi ini sudah memenuhi kebutuhan tugas website berbasis layanan cloud dengan Firebase:
+- autentikasi lengkap (register/login),
+- email verifikasi setelah register,
+- dan 12 operasi CRUD terhubung Realtime Database.
+
+Dengan struktur ini, aplikasi siap digunakan sebagai contoh implementasi BaaS Firebase untuk skenario manajemen data multi-entitas secara realtime.
+
+## Checklist Pengumpulan Tugas
+
+1. **Upload ke GitHub**
+   - Push semua file proyek ke repository GitHub.
+   - Pastikan README berisi cara setup dan cara menjalankan.
+
+2. **Deploy ke Cloud Hosting**
+   - Deploy ke Netlify (atau hosting cloud lain).
+   - Pastikan URL website aktif dan bisa diakses publik.
+
+3. **Buat Video Demo YouTube**
+   - Tunjukkan semua fitur:
+     - Register + Login
+     - Verifikasi email
+     - 12 CRUD (Produk, Kategori, Supplier)
+     - Bonus cloud (upload gambar ke Firebase Storage)
+   - Tunjukkan isi Firebase Console:
+     - Authentication
+     - Realtime Database
+     - Storage (jika bonus diaktifkan)
+
+## Daftar Screenshot yang Perlu Diambil
+
+Untuk laporan, minimal ambil screenshot berikut:
+
+1. **Halaman Register** (sebelum submit).
+2. **Email verifikasi masuk inbox** (subjek/verifikasi terlihat).
+3. **Halaman Login** (berhasil login).
+4. **Dashboard setelah login** (semua modul terlihat).
+5. **Create data Produk** (form terisi + hasil muncul di tabel).
+6. **Create data Kategori** (hasil muncul di tabel).
+7. **Create data Supplier** (hasil muncul di tabel).
+8. **Update salah satu data** (sebelum & sesudah update).
+9. **Delete salah satu data** (konfirmasi + hasil data hilang).
+10. **Upload gambar produk ke Firebase Storage** (thumbnail tampil).
+11. **Firebase Console - Authentication** (daftar user).
+12. **Firebase Console - Realtime Database** (node products/categories/suppliers).
+13. **Firebase Console - Storage** (file gambar tersimpan).
+14. **Website hasil deploy** di Netlify/custom domain.
 
 ## Lisensi
 
