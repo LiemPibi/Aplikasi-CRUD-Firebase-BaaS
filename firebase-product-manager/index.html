@@ -8,6 +8,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 </head>
 <body>
   <nav class="navbar">
@@ -87,6 +88,11 @@
               <div class="form-group"><label>Harga</label><input type="number" id="productPrice" min="0" required /></div>
               <div class="form-group"><label>Stok</label><input type="number" id="productStock" min="0" required /></div>
             </div>
+            <div class="form-group">
+              <label>Gambar Produk (opsional - Firebase Storage)</label>
+              <input type="file" id="productImage" accept="image/*" />
+              <small class="info-text">Bonus layanan cloud: file gambar disimpan ke Firebase Storage.</small>
+            </div>
             <div class="form-actions">
               <button type="submit" class="btn-primary" id="productSaveBtn">Simpan Produk</button>
               <button type="button" class="btn-secondary" onclick="resetProductForm()">Reset</button>
@@ -136,7 +142,7 @@
         <h2>Data Produk (Read)</h2>
         <div class="table-responsive">
           <table class="data-table">
-            <thead><tr><th>No</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>No</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Gambar</th><th>Aksi</th></tr></thead>
             <tbody id="productTableBody"></tbody>
           </table>
         </div>

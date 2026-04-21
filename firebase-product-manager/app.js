@@ -36,11 +36,13 @@ function showFirebaseConfigError() {
 
 let auth = null;
 let database = null;
+let storage = null;
 
 if (isFirebaseConfigValid(firebaseConfig)) {
   firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
   database = firebase.database();
+  storage = firebase.storage();
 } else {
   showFirebaseConfigError();
 }
@@ -211,7 +213,10 @@ function readProducts() {
     let idx = 1;
     snapshot.forEach((item) => {
       const p = item.val();
-      tbody.innerHTML += `<tr><td>${idx++}</td><td>${escapeHtml(p.name)}</td><td>Rp ${formatNumber(p.price)}</td><td>${p.stock}</td><td><button class="btn-edit" onclick="editProduct('${item.key}')">Edit</button><button class="btn-delete" onclick="deleteProduct('${item.key}')">Hapus</button></td></tr>`;
+      const imageCell = p.imageUrl
+        ? `<a href="${escapeHtml(p.imageUrl)}" target="_blank" rel="noopener noreferrer"><img src="${escapeHtml(p.imageUrl)}" alt="gambar produk" class="thumb" /></a>`
+        : "-";
+      tbody.innerHTML += `<tr><td>${idx++}</td><td>${escapeHtml(p.name)}</td><td>Rp ${formatNumber(p.price)}</td><td>${p.stock}</td><td>${imageCell}</td><td><button class="btn-edit" onclick="editProduct('${item.key}')">Edit</button><button class="btn-delete" onclick="deleteProduct('${item.key}')">Hapus</button></td></tr>`;
     });
   });
 }
@@ -346,14 +351,25 @@ function deleteSupplier(id) {
 // ============================================
 // FORM HANDLERS + EDIT HELPERS
 // ============================================
-function handleProductSubmit(e) {
+async function handleProductSubmit(e) {
   e.preventDefault();
   const id = document.getElementById("productId").value;
+  const imageFile = document.getElementById("productImage").files[0];
   const payload = {
     name: document.getElementById("productName").value.trim(),
     price: Number(document.getElementById("productPrice").value),
     stock: Number(document.getElementById("productStock").value)
   };
+
+  if (imageFile) {
+    const uploadResult = await uploadProductImage(imageFile);
+    if (!uploadResult.ok) {
+      showToast(uploadResult.message, "error");
+      return;
+    }
+    payload.imageUrl = uploadResult.url;
+  }
+
   id ? updateProduct(id, payload) : createProduct(payload);
 }
 
@@ -418,6 +434,25 @@ function resetProductForm() {
   document.getElementById("productId").value = "";
   document.getElementById("productFormTitle").textContent = "Create/Update Produk";
   document.getElementById("productSaveBtn").textContent = "Simpan Produk";
+}
+
+async function uploadProductImage(file) {
+  const user = currentUserGuard();
+  if (!user) {
+    return { ok: false, message: "Anda harus login untuk upload gambar." };
+  }
+  if (!storage) {
+    return { ok: false, message: "Firebase Storage belum aktif/terkonfigurasi." };
+  }
+  try {
+    const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+    const ref = storage.ref(`product-images/${user.uid}/${safeName}`);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+    return { ok: true, url };
+  } catch (error) {
+    return { ok: false, message: "Upload gambar gagal: " + error.message };
+  }
 }
 
 function resetCategoryForm() {

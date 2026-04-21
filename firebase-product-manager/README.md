@@ -32,6 +32,10 @@ Total: **12 fungsi CRUD** terhubung ke Firebase Realtime Database.
 - Form validation
 - Loading states
 
+### 5. Bonus Layanan Cloud Tambahan
+- **Firebase Storage** untuk upload gambar produk (opsional)
+- URL file gambar disimpan bersama data produk di Realtime Database
+
 ## Setup Firebase
 
 ### 1. Buat Project Firebase
@@ -155,6 +159,20 @@ Rules ini memastikan:
 - Hanya user yang login bisa membaca data
 - User hanya bisa mengubah data miliknya sendiri
 
+### Firebase Storage Rules (Opsional Bonus)
+Jika memakai upload gambar produk, gunakan rules sederhana berikut:
+
+```txt
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /product-images/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
 ## Testing
 
 ### Test Case 1: Register
@@ -258,6 +276,27 @@ Aplikasi ini sudah memenuhi kebutuhan tugas website berbasis layanan cloud denga
 - dan 12 operasi CRUD terhubung Realtime Database.
 
 Dengan struktur ini, aplikasi siap digunakan sebagai contoh implementasi BaaS Firebase untuk skenario manajemen data multi-entitas secara realtime.
+
+## Checklist Pengumpulan Tugas
+
+1. **Upload ke GitHub**
+   - Push semua file proyek ke repository GitHub.
+   - Pastikan README berisi cara setup dan cara menjalankan.
+
+2. **Deploy ke Cloud Hosting**
+   - Deploy ke Netlify (atau hosting cloud lain).
+   - Pastikan URL website aktif dan bisa diakses publik.
+
+3. **Buat Video Demo YouTube**
+   - Tunjukkan semua fitur:
+     - Register + Login
+     - Verifikasi email
+     - 12 CRUD (Produk, Kategori, Supplier)
+     - Bonus cloud (upload gambar ke Firebase Storage)
+   - Tunjukkan isi Firebase Console:
+     - Authentication
+     - Realtime Database
+     - Storage (jika bonus diaktifkan)
 
 ## Lisensi
 
