@@ -2,13 +2,14 @@
 // FIREBASE CONFIGURATION
 // ============================================
 const firebaseConfig = {
-  apiKey: "AIzaSyYourApiKeyHere",
-  authDomain: "your-project.firebaseapp.com",
-  databaseURL: "https://your-project-default-rtdb.firebaseio.com",
-  projectId: "your-project",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef123456"
+  apiKey: "AIzaSyAbU-x2hS4Wc8AvpDG9yhy2RR8gfSJc5o0",
+  authDomain: "product-manager-bdc83.firebaseapp.com",
+  databaseURL: "https://product-manager-bdc83-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "product-manager-bdc83",
+  storageBucket: "product-manager-bdc83.firebasestorage.app",
+  messagingSenderId: "519624740177",
+  appId: "1:519624740177:web:ed90d4b073b8d7dd7b5770",
+  measurementId: "G-ETY4DNERT0"
 };
 
 function isFirebaseConfigValid(config) {
@@ -37,9 +38,11 @@ function showFirebaseConfigError() {
 let auth = null;
 let database = null;
 let storage = null;
+let analytics = null;
 
 if (isFirebaseConfigValid(firebaseConfig)) {
   firebase.initializeApp(firebaseConfig);
+  analytics = firebase.analytics();
   auth = firebase.auth();
   database = firebase.database();
   storage = firebase.storage();
