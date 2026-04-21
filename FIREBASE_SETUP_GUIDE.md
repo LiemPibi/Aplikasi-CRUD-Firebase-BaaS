@@ -96,6 +96,18 @@ admin.initializeApp({
         ".read": "auth != null",
         ".write": "auth != null && (data.child('userId').val() == auth.uid || newData.child('userId').val() == auth.uid)"
       }
+    },
+    "categories": {
+      "$categoryId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (data.child('userId').val() == auth.uid || newData.child('userId').val() == auth.uid)"
+      }
+    },
+    "suppliers": {
+      "$supplierId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (data.child('userId').val() == auth.uid || newData.child('userId').val() == auth.uid)"
+      }
     }
   }
 }
