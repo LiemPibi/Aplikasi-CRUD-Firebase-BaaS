@@ -85,41 +85,36 @@ const firebaseConfig = {
 3. Buka file `index.html` di browser
 4. Atau gunakan Live Server di VS Code
 
-### Deploy ke Netlify
+### Deploy ke Render
 
-Netlify adalah platform hosting yang sangat mudah digunakan untuk static sites.
-
-#### Opsi 1: Drag & Drop (Termudah)
-1. Buka [Netlify](https://www.netlify.com/)
-2. Login dengan akun GitHub/GitLab/Email
-3. Di dashboard, drag & drop folder project ke area deploy
-4. Tunggu beberapa detik, website akan otomatis deploy!
-
-#### Opsi 2: Connect Git Repository
+#### Opsi 1: Static Site
 1. Push code ke GitHub/GitLab
-2. Buka [Netlify Dashboard](https://app.netlify.com/)
-3. Klik **"Add new site"** > **"Import an existing project"**
-4. Pilih Git provider (GitHub/GitLab)
-5. Pilih repository `firebase-product-manager`
-6. Setting:
-   - **Branch to deploy**: `main` atau `master`
-   - **Build command**: *(kosongkan)*
-   - **Publish directory**: `.` (root folder)
-7. Klik **"Deploy site"**
+2. Buka [Render](https://render.com/)
+3. Klik "New +" > "Static Site"
+4. Connect repository Anda
+5. Setting:
+   - **Build Command**: Kosongkan
+   - **Publish Directory**: `.` (root folder)
+6. Klik "Create Static Site"
 
-#### Opsi 3: Netlify CLI
-1. Install Netlify CLI:
-```bash
-npm install netlify-cli -g
+#### Opsi 2: Web Service (dengan Node.js)
+1. Buat file `package.json`:
+```json
+{
+  "name": "firebase-product-manager",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "npx serve ."
+  }
+}
 ```
-2. Login ke Netlify:
-```bash
-netlify login
-```
-3. Deploy dari folder project:
-```bash
-netlify deploy --prod --dir=.
-```
+2. Push ke GitHub
+3. Di Render, pilih "New +" > "Web Service"
+4. Connect repository
+5. Setting:
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+6. Klik "Create Web Service"
 
 ## Struktur Folder
 
@@ -201,7 +196,7 @@ Rules ini memastikan:
 - **Backend**: Firebase BaaS
   - Firebase Authentication
   - Firebase Realtime Database
-- **Hosting**: Netlify (Static Site)
+- **Hosting**: Render (Static Site)
 
 ## Lisensi
 

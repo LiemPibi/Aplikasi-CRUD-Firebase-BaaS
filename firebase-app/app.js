@@ -1,25 +1,23 @@
 // ============================================
 // FIREBASE CONFIGURATION
-
-// Your web app's Firebase configuration
+// ============================================
+// Ganti dengan konfigurasi Firebase Anda sendiri
 const firebaseConfig = {
-    apiKey: "AIzaSyC9n2sXo5l8m1Zt3v6X9y7a8b0c1d2e3f",
-    authDomain: "crud-firebase-12345.firebaseapp.com",
-    databaseURL: "https://crud-firebase-12345-default-rtdb.firebaseio.com",
-    projectId: "crud-firebase-12345",
-    storageBucket: "crud-firebase-12345.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef123456",
-    measurementId: "G-ABCDEFGH1J"   
+    apiKey: "AIzaSyYourApiKeyHere",
+    authDomain: "your-project.firebaseapp.com",
+    databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+    projectId: "your-project",
+    storageBucket: "your-project.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abcdef123456"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+firebase.initializeApp(firebaseConfig);
 
 // Get references
-const auth = getAuth(app);
-const database = getDatabase(app);
+const auth = firebase.auth();
+const database = firebase.database();
 
 // ============================================
 // AUTHENTICATION FUNCTIONS
