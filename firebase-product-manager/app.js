@@ -68,6 +68,10 @@ function switchTab(tab) {
 }
 
 function register() {
+  if (!auth) {
+    showToast("Firebase Auth belum siap. Cek firebaseConfig.", "error");
+    return;
+  }
   const email = document.getElementById("registerEmail").value.trim();
   const password = document.getElementById("registerPassword").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
@@ -102,6 +106,10 @@ function register() {
 }
 
 function login() {
+  if (!auth) {
+    showToast("Firebase Auth belum siap. Cek firebaseConfig.", "error");
+    return;
+  }
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
   const messageEl = document.getElementById("loginMessage");
@@ -126,10 +134,18 @@ function login() {
 }
 
 function logout() {
+  if (!auth) {
+    showToast("Firebase Auth belum siap. Cek firebaseConfig.", "error");
+    return;
+  }
   auth.signOut().then(() => showToast("Logout berhasil.", "success"));
 }
 
 function resendVerification() {
+  if (!auth) {
+    showToast("Firebase Auth belum siap. Cek firebaseConfig.", "error");
+    return;
+  }
   const user = auth.currentUser;
   if (user && !user.emailVerified) {
     user
@@ -140,32 +156,32 @@ function resendVerification() {
 }
 
 if (auth) {
-auth.onAuthStateChanged((user) => {
-  const authSection = document.getElementById("authSection");
-  const appSection = document.getElementById("appSection");
-  const navUser = document.getElementById("navUser");
-  const userEmail = document.getElementById("userEmail");
-  const verificationAlert = document.getElementById("verificationAlert");
+  auth.onAuthStateChanged((user) => {
+    const authSection = document.getElementById("authSection");
+    const appSection = document.getElementById("appSection");
+    const navUser = document.getElementById("navUser");
+    const userEmail = document.getElementById("userEmail");
+    const verificationAlert = document.getElementById("verificationAlert");
 
-  if (user && user.emailVerified) {
-    authSection.style.display = "none";
-    appSection.style.display = "block";
-    navUser.style.display = "flex";
-    userEmail.textContent = user.email;
-    verificationAlert.style.display = "none";
-    loadAllData();
-  } else if (user && !user.emailVerified) {
-    authSection.style.display = "none";
-    appSection.style.display = "block";
-    navUser.style.display = "flex";
-    userEmail.textContent = user.email;
-    verificationAlert.style.display = "flex";
-  } else {
-    authSection.style.display = "block";
-    appSection.style.display = "none";
-    navUser.style.display = "none";
-  }
-});
+    if (user && user.emailVerified) {
+      authSection.style.display = "none";
+      appSection.style.display = "block";
+      navUser.style.display = "flex";
+      userEmail.textContent = user.email;
+      verificationAlert.style.display = "none";
+      loadAllData();
+    } else if (user && !user.emailVerified) {
+      authSection.style.display = "none";
+      appSection.style.display = "block";
+      navUser.style.display = "flex";
+      userEmail.textContent = user.email;
+      verificationAlert.style.display = "flex";
+    } else {
+      authSection.style.display = "block";
+      appSection.style.display = "none";
+      navUser.style.display = "none";
+    }
+  });
 }
 
 function currentUserGuard() {
@@ -185,6 +201,22 @@ function loadAllData() {
   readProducts();
   readCategories();
   readSuppliers();
+}
+
+function withOwnedRecord(path, id, onSuccess) {
+  const user = currentUserGuard();
+  if (!user) return Promise.resolve();
+
+  return database
+    .ref(`${path}/${id}`)
+    .once("value")
+    .then((snapshot) => {
+      const existing = snapshot.val();
+      if (!existing || existing.userId !== user.uid) {
+        throw new Error("Data tidak ditemukan atau Anda tidak memiliki akses.");
+      }
+      return onSuccess(existing);
+    });
 }
 
 // ============================================
@@ -222,27 +254,23 @@ function readProducts() {
 }
 
 function updateProduct(id, data) {
-  const user = currentUserGuard();
-  if (!user) return;
-  database.ref("products/" + id).once("value").then((snap) => {
-    const old = snap.val();
-    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
-    return database.ref("products/" + id).update({ ...data, updatedAt: firebase.database.ServerValue.TIMESTAMP });
-  }).then(() => {
-    showToast("Produk diupdate.", "success");
-    resetProductForm();
-  }).catch((e) => showToast("Update produk gagal: " + e.message, "error"));
+  withOwnedRecord("products", id, () =>
+    database.ref(`products/${id}`).update({
+      ...data,
+      updatedAt: firebase.database.ServerValue.TIMESTAMP
+    })
+  )
+    .then(() => {
+      showToast("Produk diupdate.", "success");
+      resetProductForm();
+    })
+    .catch((e) => showToast("Update produk gagal: " + e.message, "error"));
 }
 
 function deleteProduct(id) {
-  const user = currentUserGuard();
-  if (!user) return;
   if (!confirm("Hapus produk ini?")) return;
-  database.ref("products/" + id).once("value").then((snap) => {
-    const old = snap.val();
-    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
-    return database.ref("products/" + id).remove();
-  }).then(() => showToast("Produk dihapus.", "success"))
+  withOwnedRecord("products", id, () => database.ref(`products/${id}`).remove())
+    .then(() => showToast("Produk dihapus.", "success"))
     .catch((e) => showToast("Delete produk gagal: " + e.message, "error"));
 }
 
@@ -273,27 +301,23 @@ function readCategories() {
 }
 
 function updateCategory(id, data) {
-  const user = currentUserGuard();
-  if (!user) return;
-  database.ref("categories/" + id).once("value").then((snap) => {
-    const old = snap.val();
-    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
-    return database.ref("categories/" + id).update({ ...data, updatedAt: firebase.database.ServerValue.TIMESTAMP });
-  }).then(() => {
-    showToast("Kategori diupdate.", "success");
-    resetCategoryForm();
-  }).catch((e) => showToast("Update kategori gagal: " + e.message, "error"));
+  withOwnedRecord("categories", id, () =>
+    database.ref(`categories/${id}`).update({
+      ...data,
+      updatedAt: firebase.database.ServerValue.TIMESTAMP
+    })
+  )
+    .then(() => {
+      showToast("Kategori diupdate.", "success");
+      resetCategoryForm();
+    })
+    .catch((e) => showToast("Update kategori gagal: " + e.message, "error"));
 }
 
 function deleteCategory(id) {
-  const user = currentUserGuard();
-  if (!user) return;
   if (!confirm("Hapus kategori ini?")) return;
-  database.ref("categories/" + id).once("value").then((snap) => {
-    const old = snap.val();
-    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
-    return database.ref("categories/" + id).remove();
-  }).then(() => showToast("Kategori dihapus.", "success"))
+  withOwnedRecord("categories", id, () => database.ref(`categories/${id}`).remove())
+    .then(() => showToast("Kategori dihapus.", "success"))
     .catch((e) => showToast("Delete kategori gagal: " + e.message, "error"));
 }
 
@@ -324,27 +348,23 @@ function readSuppliers() {
 }
 
 function updateSupplier(id, data) {
-  const user = currentUserGuard();
-  if (!user) return;
-  database.ref("suppliers/" + id).once("value").then((snap) => {
-    const old = snap.val();
-    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
-    return database.ref("suppliers/" + id).update({ ...data, updatedAt: firebase.database.ServerValue.TIMESTAMP });
-  }).then(() => {
-    showToast("Supplier diupdate.", "success");
-    resetSupplierForm();
-  }).catch((e) => showToast("Update supplier gagal: " + e.message, "error"));
+  withOwnedRecord("suppliers", id, () =>
+    database.ref(`suppliers/${id}`).update({
+      ...data,
+      updatedAt: firebase.database.ServerValue.TIMESTAMP
+    })
+  )
+    .then(() => {
+      showToast("Supplier diupdate.", "success");
+      resetSupplierForm();
+    })
+    .catch((e) => showToast("Update supplier gagal: " + e.message, "error"));
 }
 
 function deleteSupplier(id) {
-  const user = currentUserGuard();
-  if (!user) return;
   if (!confirm("Hapus supplier ini?")) return;
-  database.ref("suppliers/" + id).once("value").then((snap) => {
-    const old = snap.val();
-    if (!old || old.userId !== user.uid) throw new Error("Tidak punya akses.");
-    return database.ref("suppliers/" + id).remove();
-  }).then(() => showToast("Supplier dihapus.", "success"))
+  withOwnedRecord("suppliers", id, () => database.ref(`suppliers/${id}`).remove())
+    .then(() => showToast("Supplier dihapus.", "success"))
     .catch((e) => showToast("Delete supplier gagal: " + e.message, "error"));
 }
 
@@ -395,38 +415,35 @@ function handleSupplierSubmit(e) {
 }
 
 function editProduct(id) {
-  database.ref("products/" + id).once("value").then((snap) => {
-    const p = snap.val();
+  withOwnedRecord("products", id, (p) => {
     document.getElementById("productId").value = id;
     document.getElementById("productName").value = p.name;
     document.getElementById("productPrice").value = p.price;
     document.getElementById("productStock").value = p.stock;
     document.getElementById("productFormTitle").textContent = "Update Produk";
     document.getElementById("productSaveBtn").textContent = "Update Produk";
-  });
+  }).catch((e) => showToast("Gagal membuka produk: " + e.message, "error"));
 }
 
 function editCategory(id) {
-  database.ref("categories/" + id).once("value").then((snap) => {
-    const c = snap.val();
+  withOwnedRecord("categories", id, (c) => {
     document.getElementById("categoryId").value = id;
     document.getElementById("categoryName").value = c.name;
     document.getElementById("categoryType").value = c.type;
     document.getElementById("categoryFormTitle").textContent = "Update Kategori";
     document.getElementById("categorySaveBtn").textContent = "Update Kategori";
-  });
+  }).catch((e) => showToast("Gagal membuka kategori: " + e.message, "error"));
 }
 
 function editSupplier(id) {
-  database.ref("suppliers/" + id).once("value").then((snap) => {
-    const s = snap.val();
+  withOwnedRecord("suppliers", id, (s) => {
     document.getElementById("supplierId").value = id;
     document.getElementById("supplierName").value = s.name;
     document.getElementById("supplierPhone").value = s.phone;
     document.getElementById("supplierCity").value = s.city;
     document.getElementById("supplierFormTitle").textContent = "Update Supplier";
     document.getElementById("supplierSaveBtn").textContent = "Update Supplier";
-  });
+  }).catch((e) => showToast("Gagal membuka supplier: " + e.message, "error"));
 }
 
 function resetProductForm() {

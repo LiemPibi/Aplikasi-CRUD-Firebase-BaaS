@@ -298,6 +298,25 @@ Dengan struktur ini, aplikasi siap digunakan sebagai contoh implementasi BaaS Fi
      - Realtime Database
      - Storage (jika bonus diaktifkan)
 
+## Daftar Screenshot yang Perlu Diambil
+
+Untuk laporan, minimal ambil screenshot berikut:
+
+1. **Halaman Register** (sebelum submit).
+2. **Email verifikasi masuk inbox** (subjek/verifikasi terlihat).
+3. **Halaman Login** (berhasil login).
+4. **Dashboard setelah login** (semua modul terlihat).
+5. **Create data Produk** (form terisi + hasil muncul di tabel).
+6. **Create data Kategori** (hasil muncul di tabel).
+7. **Create data Supplier** (hasil muncul di tabel).
+8. **Update salah satu data** (sebelum & sesudah update).
+9. **Delete salah satu data** (konfirmasi + hasil data hilang).
+10. **Upload gambar produk ke Firebase Storage** (thumbnail tampil).
+11. **Firebase Console - Authentication** (daftar user).
+12. **Firebase Console - Realtime Database** (node products/categories/suppliers).
+13. **Firebase Console - Storage** (file gambar tersimpan).
+14. **Website hasil deploy** di Netlify/custom domain.
+
 ## Lisensi
 
 Project ini dibuat untuk tugas implementasi BaaS menggunakan Firebase.
